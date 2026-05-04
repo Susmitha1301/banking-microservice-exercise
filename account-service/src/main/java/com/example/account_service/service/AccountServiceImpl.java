@@ -33,6 +33,10 @@ public class AccountServiceImpl implements AccountService {
             throw new RuntimeException("Invalid Customer");
         }
 
+        if(!"ACTIVE".equalsIgnoreCase(customer.getStatus())) {
+            throw new RuntimeException(("Customer is not active"));
+        }
+
         Account account = Account.builder() //here builder is used for creating entity obj db obj
                 .customerId(dto.getCustomerId()) //puts value in acc obj ; takes the value froms source which is dto and sets it to account
                 .accountNumber(generateAccountNumber())
