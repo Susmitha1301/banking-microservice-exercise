@@ -20,6 +20,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponseDTO deposit(DepositRequestDTO dto) {
         AccountResponseDTO account = getAccount(dto.getAccountNumber());
+        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
+            throw new RuntimeException("Account is not active");
+        }
+
         BigDecimal newBalance = account.getBalance().add(dto.getAmount());
         updateAccountBalance(dto.getAccountNumber(), newBalance);
 
@@ -40,6 +44,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponseDTO withdraw(WithdrawRequestDTO dto) {
         AccountResponseDTO account = getAccount(dto.getAccountNumber());
+        if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
+            throw new RuntimeException("Account is not active");
+        }
         if (account.getBalance().compareTo(dto.getAmount()) < 0) {
             throw new RuntimeException("Insufficient balance");
         }
@@ -64,6 +71,11 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponseDTO transfer(TransferRequestDTO dto) {
         AccountResponseDTO fromAccount = getAccount(dto.getFromAccountNumber());
         AccountResponseDTO toAccount = getAccount(dto.getToAccountNumber());
+
+        if (!"ACTIVE".equalsIgnoreCase(fromAccount.getStatus()) ||
+        !"ACTIVE".equalsIgnoreCase(toAccount.getStatus())) {
+            throw new RuntimeException("Account is not active");
+        }
 
         if(fromAccount.getBalance().compareTo(dto.getAmount()) < 0) {
             throw new RuntimeException("Insufficient Balance");
