@@ -4,7 +4,7 @@ package com.example.account_service.service;
 import com.example.account_service.dto.AccountRequestDTO;
 import com.example.account_service.dto.AccountResponseDTO;
 import com.example.account_service.entity.Account;
-import com.example.accountservice.dto.CustomerResponseDTO;
+import com.example.account_service.dto.CustomerResponseDTO;
 
 import com.example.account_service.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         Account account = Account.builder() //here builder is used for creating entity obj db obj
-                .customerId(dto.getCustomerId())
+                .customerId(dto.getCustomerId()) //puts value in acc obj ; takes the value froms source which is dto and sets it to account
                 .accountNumber(generateAccountNumber())
                 .accountType(dto.getAccountType())
                 .balance(dto.getInitialDeposit())
@@ -42,21 +42,21 @@ public class AccountServiceImpl implements AccountService {
                 .createdDate(LocalDateTime.now())
                 .build(); //here builder is used for creating entity obj db obj
         Account savedAccount = accountRepository.save(account);
-        return MapToResponseDTO(savedAccount); //convert account entity to accresdto
+        return mapToResponseDTO(savedAccount); //convert account entity to accresdto
     }
 
     @Override
     public AccountResponseDTO getAccountByNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
-        return MapToResponseDTO(account);
+        return mapToResponseDTO(account);
     }
 
     @Override
     public List<AccountResponseDTO> getAccountByCustomerId(Long customerId) {
         return accountRepository.findByCustomerId(customerId)
                 .stream()
-                .map(this::MapToResponseDTO)
+                .map(this::mapToResponseDTO)
                 .toList();
     }
 
@@ -69,8 +69,17 @@ public class AccountServiceImpl implements AccountService {
 
          Account updatedAccount = accountRepository.save(account);
 
-         return MapToResponseDTO(updatedAccount);
+         return mapToResponseDTO(updatedAccount);
     }
+
+    @Override
+    public List<AccountResponseDTO> getAllAccounts() {
+        return accountRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .toList();
+    }
+
 
     private String generateAccountNumber() {
         return "ACC" + UUID.randomUUID()
@@ -80,9 +89,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    private AccountResponseDTO MapToResponseDTO(Account account) {
+    private AccountResponseDTO mapToResponseDTO(Account account) {
         return AccountResponseDTO.builder()
-                .accountNumber(account.getAccountNumber())
+                .accountNumber(account.getAccountNumber()) //ddata going from entity to response dto
                 .customerId(account.getCustomerId())
                 .accountType(account.getAccountType())
                 .balance(account.getBalance())

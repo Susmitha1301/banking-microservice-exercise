@@ -11,4 +11,6 @@ public interface AccountService {
     AccountResponseDTO getAccountByNumber(String accountNumber);
     List<AccountResponseDTO> getAccountByCustomerId(Long customerId);
     AccountResponseDTO updateBalance(String accountNumber, BigDecimal balance);
+    List<AccountResponseDTO> getAllAccounts();
 }
+

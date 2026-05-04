@@ -70,7 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         BigDecimal fromNewBalance = fromAccount.getBalance().subtract(dto.getAmount());
-        BigDecimal toNewBalance = fromAccount.getBalance().add(dto.getAmount());
+        BigDecimal toNewBalance = toAccount.getBalance().add(dto.getAmount());
 
         updateAccountBalance(dto.getFromAccountNumber(), fromNewBalance);
         updateAccountBalance(dto.getToAccountNumber(), toNewBalance);
