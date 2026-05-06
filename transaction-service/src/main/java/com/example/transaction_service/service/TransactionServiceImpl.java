@@ -2,7 +2,11 @@ package com.example.transaction_service.service;
 
 import com.example.transaction_service.dto.*;
 import com.example.transaction_service.entity.Transaction;
+import com.example.transaction_service.producer.TransactionEventProducer;
 import com.example.transaction_service.repository.TransactionRepository;
+import com.example.transaction_service.event.TransactionEvent;
+import com.example.transaction_service.producer.TransactionEventProducer;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
+    private final TransactionEventProducer transactionEventProducer;
     private final WebClient webClient;
 
     @Override
@@ -37,6 +42,17 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
 
         Transaction savedTransaction = transactionRepository.save(transaction);
+        TransactionEvent event = TransactionEvent.builder()
+                .transactionId(savedTransaction.getId())
+                .fromAccountNumber(savedTransaction.getFromAccountNumber())
+                .toAccountNumber(savedTransaction.getToAccountNumber())
+                .transactionType(savedTransaction.getTransactionType())
+                .amount(savedTransaction.getAmount())
+                .status(savedTransaction.getStatus())
+                .message("Deposit completed successfully")
+                .build();
+
+        transactionEventProducer.publishTransactionEvent(event);
 
         return mapToResponseDTO(savedTransaction);
     }
@@ -63,7 +79,17 @@ public class TransactionServiceImpl implements TransactionService {
                 .transactionDate(LocalDateTime.now())
                 .build();
         Transaction savedTransaction = transactionRepository.save(transaction);
+        TransactionEvent event = TransactionEvent.builder()
+                .transactionId(savedTransaction.getId())
+                .fromAccountNumber(savedTransaction.getFromAccountNumber())
+                .toAccountNumber(savedTransaction.getToAccountNumber())
+                .transactionType(savedTransaction.getTransactionType())
+                .amount(savedTransaction.getAmount())
+                .status(savedTransaction.getStatus())
+                .message("Withdrawal completed successfully")
+                .build();
 
+        transactionEventProducer.publishTransactionEvent(event);
         return mapToResponseDTO(savedTransaction);
     }
 
@@ -96,7 +122,17 @@ public class TransactionServiceImpl implements TransactionService {
                 .transactionDate(LocalDateTime.now())
                 .build();
         Transaction savedTransaction = transactionRepository.save(transaction);
+        TransactionEvent event = TransactionEvent.builder()
+                .transactionId(savedTransaction.getId())
+                .fromAccountNumber(savedTransaction.getFromAccountNumber())
+                .toAccountNumber(savedTransaction.getToAccountNumber())
+                .transactionType(savedTransaction.getTransactionType())
+                .amount(savedTransaction.getAmount())
+                .status(savedTransaction.getStatus())
+                .message("Transfer completed successfully")
+                .build();
 
+        transactionEventProducer.publishTransactionEvent(event);
         return mapToResponseDTO(savedTransaction);
     }
 
