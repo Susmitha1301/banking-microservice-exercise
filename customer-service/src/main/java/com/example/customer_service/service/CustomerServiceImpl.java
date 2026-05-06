@@ -5,6 +5,10 @@ import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.Customer;
 import com.example.customer_service.repositoty.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -74,6 +78,16 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setStatus("INACTIVE");
         customerRepository.save(customer);
+    }
+
+    @Override
+    public Page<CustomerResponseDTO> getAllCustomers(int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(sortBy).descending());
+        Page<Customer> customers = customerRepository.findAll(pageable);
+        return customers.map(this::mapToResponseDTO);
     }
 
     //this is the helper method basically converts the customer entity to customerresposedto

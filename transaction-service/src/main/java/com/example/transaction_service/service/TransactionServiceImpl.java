@@ -5,9 +5,12 @@ import com.example.transaction_service.entity.Transaction;
 import com.example.transaction_service.producer.TransactionEventProducer;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.event.TransactionEvent;
-import com.example.transaction_service.producer.TransactionEventProducer;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -137,13 +140,40 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponseDTO> getTransactionHistory(String accountNumber) {
-        return transactionRepository
-                .findByFromAccountNumberOrToAccountNumber(accountNumber, accountNumber)
-                .stream()
+    public Page<TransactionResponseDTO> getTransactionsByAccount(
+            String accountNumber,
+            int page,
+            int size,
+            String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(sortBy).descending()
+        );
+
+        Page<Transaction> transactions =
+                transactionRepository.findByFromAccountNumberOrToAccountNumber(
+                        accountNumber,
+                        accountNumber,
+                        pageable
+                );
+
+        return transactions.map(this::mapToResponseDTO);
+    }
+
+    @Override
+    public List<TransactionResponseDTO> getHighValueTransactions(BigDecimal amount) {
+
+        List<Transaction> transactions =
+                transactionRepository.findHighValueTransactions(amount);
+
+        return transactions.stream()
                 .map(this::mapToResponseDTO)
                 .toList();
     }
+
+
 
     private AccountResponseDTO getAccount(String accountNumber) {
         return webClient.get()

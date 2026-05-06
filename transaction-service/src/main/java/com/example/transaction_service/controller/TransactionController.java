@@ -7,8 +7,11 @@ import com.example.transaction_service.dto.WithdrawRequestDTO;
 import com.example.transaction_service.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -31,9 +34,25 @@ public class TransactionController {
     public TransactionResponseDTO transfer(@Valid @RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transfer(transferRequestDTO);
     }
-
-    @GetMapping("/history/{accountNumber}")
-    public List<TransactionResponseDTO> getTransactionHistory(@PathVariable String accountNumber) {
-        return transactionService.getTransactionHistory(accountNumber);
+    @GetMapping("/account/{accountNumber}")
+    public ResponseEntity<Page<TransactionResponseDTO>> getTransactionsByAccount(
+            @PathVariable String accountNumber,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "transactionDate") String sortBy
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getTransactionsByAccount(
+                        accountNumber,
+                        page,
+                        size,
+                        sortBy));
+    }
+    @GetMapping("/high-value")
+    public ResponseEntity<List<TransactionResponseDTO>> getHighValueTransactions(
+            @RequestParam BigDecimal amount
+    ) {
+        return ResponseEntity.ok(
+                transactionService.getHighValueTransactions(amount));
     }
 }
