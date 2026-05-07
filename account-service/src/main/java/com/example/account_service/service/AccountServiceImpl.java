@@ -6,6 +6,7 @@ import com.example.account_service.dto.AccountResponseDTO;
 import com.example.account_service.entity.Account;
 import com.example.account_service.dto.CustomerResponseDTO;
 
+import com.example.account_service.exception.AccountNotFoundException;
 import com.example.account_service.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponseDTO getAccountByNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found with accountNumber:" + accountNumber));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found with accountNumber:" + accountNumber));
         return mapToResponseDTO(account);
     }
 
@@ -67,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponseDTO updateBalance(String accountNumber, BigDecimal balance) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found with accountNumber: " + accountNumber));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found with accountNumber: " + accountNumber));
 
          account.setBalance(balance);
 

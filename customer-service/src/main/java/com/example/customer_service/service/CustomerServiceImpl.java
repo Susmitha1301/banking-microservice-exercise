@@ -43,7 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponseDTO getCustomerById(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id:" + id));
 
         return mapToResponseDTO(customer);
     }
@@ -59,7 +59,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO dto) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id:" + id));
 
         customer.setFirstName(dto.getFirstName());
         customer.setLastName(dto.getLastName());
