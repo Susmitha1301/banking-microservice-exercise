@@ -3,6 +3,7 @@ package com.example.customer_service.service;
 import com.example.customer_service.dto.CustomerRequestDTO;
 import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.entity.Customer;
+import com.example.customer_service.exception.CustomerNotFoundException;
 import com.example.customer_service.repositoty.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -74,7 +75,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteCustomer(Long id) {
         Customer customer = customerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found with id:" + id));
 
         customer.setStatus("INACTIVE");
         customerRepository.save(customer);

@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponseDTO getAccountByNumber(String accountNumber) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found with accountNumber:" + accountNumber));
         return mapToResponseDTO(account);
     }
 
@@ -67,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountResponseDTO updateBalance(String accountNumber, BigDecimal balance) {
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new RuntimeException("Account not found with accountNumber: " + accountNumber));
 
          account.setBalance(balance);
 

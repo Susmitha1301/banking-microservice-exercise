@@ -7,6 +7,7 @@ import com.example.transaction_service.dto.WithdrawRequestDTO;
 import com.example.transaction_service.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,22 +18,32 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionController {
     private final TransactionService transactionService;
 
     @PostMapping("/deposit")
-    public TransactionResponseDTO deposit(@Valid @RequestBody DepositRequestDTO depositRequestDTO) {
-        return transactionService.deposit(depositRequestDTO);
+    public ResponseEntity<TransactionResponseDTO> deposit(@Valid @RequestBody DepositRequestDTO depositRequestDTO) {
+        log.info("Deposit request started for account {}", depositRequestDTO.getAccountNumber());
+        TransactionResponseDTO response = transactionService.deposit(depositRequestDTO);
+        log.info("Deposit completed successfully for account {}", depositRequestDTO.getAccountNumber());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/withdraw")
-    public TransactionResponseDTO withdraw(@Valid @RequestBody WithdrawRequestDTO withdrawRequestDTO) {
-        return transactionService.withdraw(withdrawRequestDTO);
+    public ResponseEntity<TransactionResponseDTO> withdraw(@Valid @RequestBody WithdrawRequestDTO withdrawRequestDTO) {
+        log.info("Withdraw request started for account {}", withdrawRequestDTO.getAccountNumber());
+        TransactionResponseDTO response = transactionService.withdraw(withdrawRequestDTO);
+        log.info("Withdraw completed successfully for account {}",withdrawRequestDTO.getAccountNumber());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/transfer")
-    public TransactionResponseDTO transfer(@Valid @RequestBody TransferRequestDTO transferRequestDTO) {
-        return transactionService.transfer(transferRequestDTO);
+    public ResponseEntity<TransactionResponseDTO> transfer(@Valid @RequestBody TransferRequestDTO transferRequestDTO) {
+        log.info("Transfer request started from {} to {}", transferRequestDTO.getFromAccountNumber(), transferRequestDTO.getToAccountNumber());
+        TransactionResponseDTO response = transactionService.transfer(transferRequestDTO);
+        log.info("Transfer completed successfully from {} to {}", transferRequestDTO.getFromAccountNumber(), transferRequestDTO.getToAccountNumber());
+        return ResponseEntity.ok(response);
     }
     @GetMapping("/account/{accountNumber}")
     public ResponseEntity<Page<TransactionResponseDTO>> getTransactionsByAccount(

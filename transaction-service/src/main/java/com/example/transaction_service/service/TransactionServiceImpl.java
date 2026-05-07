@@ -2,6 +2,8 @@ package com.example.transaction_service.service;
 
 import com.example.transaction_service.dto.*;
 import com.example.transaction_service.entity.Transaction;
+import com.example.transaction_service.exception.AccountNotFoundException;
+import com.example.transaction_service.exception.InsufficientBalanceException;
 import com.example.transaction_service.producer.TransactionEventProducer;
 import com.example.transaction_service.repository.TransactionRepository;
 import com.example.transaction_service.event.TransactionEvent;
@@ -29,7 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponseDTO deposit(DepositRequestDTO dto) {
         AccountResponseDTO account = getAccount(dto.getAccountNumber());
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-            throw new RuntimeException("Account is not active");
+            throw new AccountNotFoundException("Account is not active:" + dto.getAccountNumber());
         }
 
         BigDecimal newBalance = account.getBalance().add(dto.getAmount());
@@ -64,10 +66,10 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponseDTO withdraw(WithdrawRequestDTO dto) {
         AccountResponseDTO account = getAccount(dto.getAccountNumber());
         if (!"ACTIVE".equalsIgnoreCase(account.getStatus())) {
-            throw new RuntimeException("Account is not active");
+            throw new AccountNotFoundException("Account is not active:" + dto.getAccountNumber());
         }
         if (account.getBalance().compareTo(dto.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance for account:" + dto.getAccountNumber());
         }
 
         BigDecimal newBalance = account.getBalance().subtract(dto.getAmount());
@@ -103,11 +105,11 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (!"ACTIVE".equalsIgnoreCase(fromAccount.getStatus()) ||
         !"ACTIVE".equalsIgnoreCase(toAccount.getStatus())) {
-            throw new RuntimeException("Account is not active");
+            throw new AccountNotFoundException("One of the Accounts is not active");
         }
 
         if(fromAccount.getBalance().compareTo(dto.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient Balance");
+            throw new InsufficientBalanceException("Insufficient Balance in account:" + dto.getToAccountNumber());
         }
 
         BigDecimal fromNewBalance = fromAccount.getBalance().subtract(dto.getAmount());

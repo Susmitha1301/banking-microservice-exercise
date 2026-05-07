@@ -6,21 +6,27 @@ import com.example.customer_service.dto.CustomerResponseDTO;
 import com.example.customer_service.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
+@Slf4j
 public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping
-    public CustomerResponseDTO createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
-        return customerService.createCustomer(customerRequestDTO);
+    public ResponseEntity<CustomerResponseDTO> createCustomer(@Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+        log.info("Create customer request started for email {}", customerRequestDTO.getEmail());
+        CustomerResponseDTO response = customerService.createCustomer(customerRequestDTO);
+        log.info("create customer completed successfully for customerId {}", response.getId());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
